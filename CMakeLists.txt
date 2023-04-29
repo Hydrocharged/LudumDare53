@@ -11,7 +11,9 @@ include(FetchContent)
 FetchContent_Declare(galacticeengine # April 28, 2023
     GIT_REPOSITORY https://github.com/Hydrocharged/GalacticEngine.git
     GIT_TAG 0658e483af35713bad5da4747dbc2fe254dc6e5a)
-FetchContent_MakeAvailable(galacticeengine)
+FetchContent_Declare(flecs # April 28, 2023
+    URL https://github.com/SanderMertens/flecs/archive/665736efce28fdb142f48379875075d02c174bc1.zip)
+FetchContent_MakeAvailable(galacticeengine flecs)
 
 # Project
 file(GLOB_RECURSE all_SRCS
@@ -27,5 +29,5 @@ endif()
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/src)
-target_link_libraries(${PROJECT_NAME} PRIVATE GalacticEngine)
+target_link_libraries(${PROJECT_NAME} PRIVATE GalacticEngine flecs::flecs_static)
 galactic_engine_post_build()
