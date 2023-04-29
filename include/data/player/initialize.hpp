@@ -4,10 +4,14 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-#ifndef DATA_DATA_HPP
-#define DATA_DATA_HPP
+#ifndef DATA_PLAYER_INITIALIZE_HPP
+#define DATA_PLAYER_INITIALIZE_HPP
 
 #include <data/player/player.hpp>
-#include <data/world/world.hpp>
 
-#endif //DATA_DATA_HPP
+namespace data::player {
+	bool Initialize(engine::Application* application);
+	void Terminate();
+}
+
+#endif //DATA_PLAYER_INITIALIZE_HPP
