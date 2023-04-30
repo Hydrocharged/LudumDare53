@@ -16,7 +16,6 @@ namespace ecs::components {
 		float SectionProgress; // How far along we are on this section
 		float Speed; // Multiplier on speed limit, affects how much faster/slower this person drives
 		std::uint16_t Destination; // Building Index
-		std::uint64_t DeliveryID; // Related to data::player::DeliveryID
 	};
 }
 

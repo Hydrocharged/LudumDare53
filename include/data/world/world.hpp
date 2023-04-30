@@ -7,6 +7,18 @@
 #ifndef DATA_WORLD_WORLD_HPP
 #define DATA_WORLD_WORLD_HPP
 
+#define HOURS_24 86400.0
+#define HOURS_24F 86400.0f
+#define HOURS_16 57600.0
+#define HOURS_16F 57600.0f
+#define HOURS_8 28800.0
+#define HOURS_8F 28800.0f
+
+#define MPH_TO_FEET_PER_SECOND 1.466666666667
+#define MPH_TO_FEET_PER_SECONDF 1.466666666667f
+#define MPH_TO_UNITS_PER_SECOND (MPH_TO_FEET_PER_SECOND / 6.0)
+#define MPH_TO_UNITS_PER_SECONDF (MPH_TO_FEET_PER_SECONDF / 6.0f)
+
 #include <engine/application.hpp>
 
 namespace data::world {
@@ -25,7 +37,7 @@ namespace data::world {
 		Icy = 40,
 	};
 
-	extern std::vector<Node> Nodes;
+	extern std::vector<Node> Nodes; // 1 unit == 6 feet
 	extern std::vector<Road> Roads;
 	extern std::vector<Route> Routes;
 	extern std::vector<Building> Buildings;
@@ -38,10 +50,13 @@ namespace data::world {
 	extern WeatherType Weather;
 
 	struct Road {
+		Road(std::uint16_t nodeA, std::uint16_t nodeB, float speedLimit) : NodeA(nodeA), NodeB(nodeB), SpeedLimit(speedLimit) {}
+		Road(Road&& r) noexcept : NodeA(r.NodeA), NodeB(r.NodeB), SpeedLimit(r.SpeedLimit), CarCount(r.CarCount.load()) {}
+
 		std::uint16_t NodeA;
 		std::uint16_t NodeB;
 		float SpeedLimit;
-		std::uint32_t CarCount;
+		std::atomic<std::uint32_t> CarCount{0};
 
 		float Distance() const { return glm::length(Nodes[NodeA] - Nodes[NodeB]); }
 	};
@@ -53,8 +68,9 @@ namespace data::world {
 
 	struct Route {
 		RouteSection* Sections;
-		float TotalDistance;
+		float EstimatedTimeToCompletion;
 		std::uint16_t SectionCount;
+		std::uint16_t TotalLengthEstimate; //TODO: might need to divide by some number to make it all fit
 	};
 
 	enum class BuildingType : std::uint16_t { // aligned to two-byte boundary

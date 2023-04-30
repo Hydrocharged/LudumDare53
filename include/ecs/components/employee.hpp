@@ -18,6 +18,8 @@ namespace ecs::components {
 		float Experience; // How much money the driver makes is their experience
 		float Speed; // Multiplier, set when creating the driving component
 		float Friendliness; // Tip likelihood, amount, and customer satisfaction multiplier
+		float AccidentLikelihood; // Multiplier, checked every simulation step, 0 means unable to get into accidents
+		float AffectedByWeatherness; // 0 has no additional multiplier, 1.0 is doubly affected, 2.0 is triple, etc.
 		float AverageCustomerSatisfaction; // 5 out of 5 is perfect
 		float AverageDeliverySpeed; // This is relative to the estimated time of arrival without traffic
 		std::uint32_t NumberOfDeliveries;
