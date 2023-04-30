@@ -27,7 +27,6 @@ namespace data::player {
 	extern float DriverProfitSplit; // This much goes to the driver, the rest goes to the company
 	extern float CompanyDrivingPressure; // 0 is enforce slow driving, 0.5 is relaxed/no pressure, 1 is enforce fast driving
 	extern std::vector<std::uint16_t> OwnedBuildings; // Building Indexes
-	extern std::atomic<std::uint64_t> DeliveryID; // Ever-incrementing ID for each delivery
 }
 
 #endif //DATA_PLAYER_PLAYER_HPP

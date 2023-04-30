@@ -7,7 +7,7 @@
 #include <data/world/initialize.hpp>
 
 namespace data::world {
-	std::vector<Node> Nodes{};
+	std::vector<Node> Nodes{}; // 1 unit == 6 feet
 	std::vector<Road> Roads{};
 	std::vector<Route> Routes{};
 	std::vector<Building> Buildings{};
@@ -28,9 +28,13 @@ data::world::Route QRoute(std::vector<data::world::RouteSection> sections) {
 	route.Sections = new data::world::RouteSection[sections.size()];
 	memcpy(route.Sections, sections.data(), sizeof(data::world::RouteSection) * sections.size());
 	route.SectionCount = sections.size();
-	route.TotalDistance = 0.0f;
+	route.EstimatedTimeToCompletion = 0.0f;
+	route.TotalLengthEstimate = 0;
 	for (const auto& section: sections) {
-		route.TotalDistance += data::world::Roads[section.RoadID].Distance();
+		auto* road = &data::world::Roads[section.RoadID];
+		auto distance = road->Distance();
+		route.EstimatedTimeToCompletion += distance / (road->SpeedLimit * MPH_TO_UNITS_PER_SECONDF);
+		route.TotalLengthEstimate += std::uint16_t(distance);
 	}
 	return route;
 }
@@ -42,30 +46,32 @@ union RouteKey {
 
 bool data::world::Initialize(engine::Application* application) {
 	//TODO: read these from a file
-	Nodes = {{0,    400},
-			 {400,  0},
-			 {800,  0},
-			 {1200, 400},
-			 {0,    1100},
-			 {400,  1500},
-			 {800,  1500},
-			 {1200, 1100},
-			 {400,  400},
-			 {800,  400},
-			 {400,  1100},
-			 {800,  1100}};
-	Roads = {{0,  8,  50, 0},
-			 {8,  9,  50, 0},
-			 {9,  3,  50, 0},
-			 {4,  10, 60, 0},
-			 {10, 11, 60, 0},
-			 {11, 7,  60, 0},
-			 {1,  8,  40, 0},
-			 {8,  10, 40, 0},
-			 {10, 5,  40, 0},
-			 {2,  9,  45, 0},
-			 {9,  11, 45, 0},
-			 {11, 6,  45, 0}};
+	Nodes = {{0,   67},
+			 {67,  0},
+			 {133, 0},
+			 {200, 67},
+			 {0,   183},
+			 {67,  250},
+			 {133, 250},
+			 {200, 183},
+			 {67,  67},
+			 {133, 67},
+			 {67,  183},
+			 {133, 183}};
+
+	Roads.emplace_back(0, 8, 50);
+	Roads.emplace_back(8, 9, 50);
+	Roads.emplace_back(9, 3, 50);
+	Roads.emplace_back(4, 10, 60);
+	Roads.emplace_back(10, 11, 60);
+	Roads.emplace_back(11, 7, 60);
+	Roads.emplace_back(1, 8, 40);
+	Roads.emplace_back(8, 10, 40);
+	Roads.emplace_back(10, 5, 40);
+	Roads.emplace_back(2, 9, 45);
+	Roads.emplace_back(9, 11, 45);
+	Roads.emplace_back(11, 6, 45);
+
 	Routes = {
 		QRoute({{0, 0},
 				{7, 0},

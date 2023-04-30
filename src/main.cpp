@@ -60,6 +60,20 @@ public:
 		// Run systems
 		world->SetDeltaTime(deltaTime);
 		ecs::Entity::World().progress(1.0f);
+
+		//TODO: REMOVE DEBUG STUFF
+		ImGui::Begin("Internal Data", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+		int currentDay = int(glm::floor(data::world::DayTime / HOURS_24));
+		int currentHours = (int(data::world::DayTime) % int(HOURS_24F)) / 3600;
+		int currentMinutes = (int(data::world::DayTime) % 3600) / 60;
+		int currentSeconds = int(data::world::DayTime) % 60;
+		ImGui::LabelText("Current Day", "Day %d: %02d:%02d:%02d", currentDay, currentHours, currentMinutes, currentSeconds);
+		ImGui::LabelText("Money", "$%.2f", data::player::Money);
+		ImGui::LabelText("Gas Prices", "$%.2f", data::world::GasPrice);
+		float gs = data::world::GameSpeed;
+		ImGui::SliderFloat("Game Speed", &gs, 1.0f, 36000.0f);
+		data::world::GameSpeed = double(gs);
+		ImGui::End();
 		return true;
 	}
 

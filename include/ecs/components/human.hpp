@@ -8,17 +8,16 @@
 #define ECS_COMPONENTS_HUMAN_HPP
 
 #include <ecs/ecs.hpp>
+#include <data/data.hpp>
 
 namespace ecs::components {
 	struct Human : ecs::Component {
 		std::uint16_t HomeBuilding; // Building Index for Home
 		std::uint16_t CurrentBuilding; // Building Index for current location
-		bool IsDriving;
 		float WakeupTime;
-		float AccidentLikelihood; // Multiplier, checked every simulation step, 0 means unable to get into accidents
-		float AffectedByWeatherness; // 0 has no additional multiplier, 1.0 is doubly affected, 2.0 is triple, etc.
+		bool IsAsleep;
 
-		float SleepTime() const { return (WakeupTime < 28800.0f) ? (WakeupTime + 57600.0f) : (WakeupTime - 28800.0f); }
+		float SleepTime() const { return (WakeupTime < HOURS_8F) ? (WakeupTime + HOURS_16F) : (WakeupTime - HOURS_8F); }
 	};
 }
 
