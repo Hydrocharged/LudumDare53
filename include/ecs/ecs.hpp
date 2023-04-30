@@ -16,12 +16,6 @@ namespace ecs {
 
 	class Job {
 	public:
-		Job();
-		~Job();
-
-		virtual bool Run(double deltaTime) = 0;
-		[[nodiscard]] virtual std::uint8_t BatchID() const = 0;
-
 		static void SetApplication(engine::Application* application);
 
 	protected:
@@ -72,9 +66,10 @@ namespace ecs {
 		template<class ... T, typename = std::enable_if_t<std::is_base_of_v<Component, T...>>>
 		static std::unique_ptr<ecs::Query<T...>> Query();
 
-	private:
-		static flecs::world& getWorld();
+		//TODO: hide this and expose all functionality through template functions within this file
+		static flecs::world& World();
 
+	private:
 		flecs::entity entity;
 	};
 
@@ -113,7 +108,7 @@ namespace ecs {
 	std::unique_ptr<ecs::Query<T...>> ecs::Entity::Query() {
 		std::unique_ptr<ecs::Query<T...>> q;
 		q.reset(new ecs::Query<T...>());
-		q->q = getWorld().query<T...>();
+		q->q = World().query<T...>();
 		return std::move(q);
 	}
 }

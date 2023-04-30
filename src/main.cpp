@@ -9,6 +9,13 @@
 #include <engine/utils/rollingaverage.hpp>
 
 #include <ecs/ecs.hpp>
+#include <ecs/jobs/civiliansim.hpp>
+#include <ecs/jobs/driving.hpp>
+#include <ecs/jobs/employeesim.hpp>
+#include <ecs/jobs/world.hpp>
+
+#include <generation/civilian.hpp>
+#include <generation/employee.hpp>
 
 class DeLiverInc : public engine::Application {
 public:
@@ -23,6 +30,16 @@ public:
 			return false;
 		}
 
+		// Generate World
+		//TODO: generate the buildings
+		generation::CreateCivilian(70);
+		generation::CreateEmployee(10);
+
+		// Create Systems (ordered by execution)
+		world = std::make_unique<ecs::jobs::World>();
+		driving = std::make_unique<ecs::jobs::Driving>();
+		civilianSim = std::make_unique<ecs::jobs::CivilianSim>();
+		employeeSim = std::make_unique<ecs::jobs::EmployeeSim>();
 		return true;
 	}
 
@@ -31,6 +48,7 @@ public:
 	}
 
 	bool Update(double deltaTime) override {
+		// Display Framerate
 		static engine::utils::RollingAverage<double> deltaTimesAvg(10);
 		deltaTimesAvg.Update(deltaTime);
 		ImVec2 initialWindowsPos((float)engine::graphics::GetWindowWidth() / 2.0f, (float)engine::graphics::GetWindowHeight() / 8.0f);
@@ -38,6 +56,10 @@ public:
 		ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 		ImGui::Text("Framerate: %d | Frametime: %.5fms", (int)(1.0 / deltaTimesAvg.GetCurrentAverage()), deltaTimesAvg.GetCurrentAverage());
 		ImGui::End();
+
+		// Run systems
+		world->SetDeltaTime(deltaTime);
+		ecs::Entity::World().progress(1.0f);
 		return true;
 	}
 
@@ -57,6 +79,12 @@ public:
 		};
 		return options;
 	}
+
+private:
+	std::unique_ptr<ecs::jobs::World> world;
+	std::unique_ptr<ecs::jobs::Driving> driving;
+	std::unique_ptr<ecs::jobs::CivilianSim> civilianSim;
+	std::unique_ptr<ecs::jobs::EmployeeSim> employeeSim;
 };
 
 engine::Application* engine::NewApplication() {

@@ -19,8 +19,7 @@ namespace ecs::components {
 		float TipLikelihood; // 0 never tips, 1 always tips
 		float TipPercentage; // Of total order
 		bool IsWaitingOnFood;
-		std::uint32_t WaitStartDay; // Relates to data::world::DayNumber
-		float WaitStartTime; // Relates to data::world::TimeInDay
+		float WaitDayTime; // Relates to data::world::DayTime
 	};
 }
 

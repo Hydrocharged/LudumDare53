@@ -11,10 +11,6 @@ static engine::Application* gApplication = nullptr;
 
 // Job -----------------------------------------------------------------------------------------------------------------
 
-ecs::Job::Job() = default;
-
-ecs::Job::~Job() = default;
-
 engine::Application* ecs::Job::application() {
 	return gApplication;
 }
@@ -33,6 +29,6 @@ ecs::Entity::~Entity() {
 	entity.destruct();
 }
 
-flecs::world& ecs::Entity::getWorld() {
+flecs::world& ecs::Entity::World() {
 	return ::world;
 }

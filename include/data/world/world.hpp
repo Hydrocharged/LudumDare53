@@ -30,10 +30,11 @@ namespace data::world {
 	extern std::vector<Route> Routes;
 	extern std::vector<Building> Buildings;
 	extern std::vector<glm::vec2> BuildingSizes; // x == width == parallel to vector, y == depth == perpendicular to vector
-	extern std::uint32_t DayNumber;
-	extern float TimeInDay; // Seconds, 86400 seconds in a day
+	extern double DayTime; // Seconds, 86400 seconds in a day, Day == floor(DayTime / 86400)
+	extern double LastDayTime; // Last DayTime, if LastDayTime == DayTime then the game is paused
+	extern bool IsMenuUp;
 	extern float GasPrice;
-	extern float GameSpeed;
+	extern double GameSpeed;
 	extern WeatherType Weather;
 
 	struct Road {
@@ -69,6 +70,8 @@ namespace data::world {
 		std::uint16_t Cost; // Maybe in thousands, so 10 == $10,000
 		BuildingType Type;
 	};
+
+	static std::uint32_t GetRouteID(std::uint16_t buildingStart, std::uint16_t buildingDest);
 }
 
 #endif //DATA_WORLD_WORLD_HPP
