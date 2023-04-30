@@ -6,6 +6,7 @@
 
 #include <ecs/jobs/world.hpp>
 #include <data/data.hpp>
+#include <ecs/components/employee.hpp>
 
 ecs::jobs::World::World() {
 	auto& world = ecs::Entity::World();

@@ -23,6 +23,7 @@ namespace data::player {
 
 	extern double Money;
 	extern std::vector<Perk> Perks;
+	extern float OrderPrice; // Not changeable by the player
 	extern float DeliveryFee;
 	extern float DriverProfitSplit; // This much goes to the driver, the rest goes to the company
 	extern float CompanyDrivingPressure; // 0 is enforce slow driving, 0.5 is relaxed/no pressure, 1 is enforce fast driving

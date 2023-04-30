@@ -24,6 +24,7 @@ void ecs::jobs::EmployeeSim::run(flecs::entity e, ecs::components::Human& human,
 	if (data::world::LastDayTime == data::world::DayTime) {
 		return;
 	}
+	//TODO: Do I need to level up?
 	//TODO: Am I asleep? Should I wake up? If yes, wake up, if no, do nothing
 	//TODO: Am I home and need to sleep? Then go to sleep
 	//TODO: Am I home and need to start working? Travel to work

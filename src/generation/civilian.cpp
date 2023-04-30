@@ -24,7 +24,7 @@ void generation::CreateCivilian(std::uint16_t amount) {
 		ecs::components::Civilian cComponent{
 			.OrderRate = (ldutils::Randomf() * 0.6f) + 0.4f,
 			.JobLocation = 1,
-			.Metabolism = ((ldutils::Randomf() * 0.5f) + 0.5f) /HOURS_8F,
+			.Metabolism = ((ldutils::Randomf() * 0.5f) + 0.5f) / HOURS_8F,
 			.Hunger = ldutils::Randomf(),
 			.Mood = 1.0f,
 			.TipLikelihood = ldutils::Randomf(),

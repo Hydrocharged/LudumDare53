@@ -19,6 +19,9 @@
 #define MPH_TO_UNITS_PER_SECOND (MPH_TO_FEET_PER_SECOND / 6.0)
 #define MPH_TO_UNITS_PER_SECONDF (MPH_TO_FEET_PER_SECONDF / 6.0f)
 
+#define UNITS_TO_MILES (6.0 / 5280.0)
+#define UNITS_TO_MILESF (6.0f / 5280.0f)
+
 #include <engine/application.hpp>
 
 namespace data::world {

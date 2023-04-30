@@ -72,6 +72,7 @@ bool data::world::Initialize(engine::Application* application) {
 	Roads.emplace_back(9, 11, 45);
 	Roads.emplace_back(11, 6, 45);
 
+	//TODO: When loading in routes, we also need to add the inverse with flipped starts as the file only has one direction
 	Routes = {
 		QRoute({{0, 0},
 				{7, 0},

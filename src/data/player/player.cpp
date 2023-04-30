@@ -9,6 +9,7 @@
 namespace data::player {
 	double Money = 1000.0;
 	std::vector<Perk> Perks{};
+	float OrderPrice = 10.0f;
 	float DeliveryFee = 3.0f; // 3.0f is seen as fair, higher reduces order rate, lower increases order rate
 	float DriverProfitSplit = 0.5f; // This much goes to the driver, the rest goes to the company
 	float CompanyDrivingPressure = 0.0f; // 0 is enforce slow driving, 0.5 is relaxed/no pressure, 1 is enforce fast driving
