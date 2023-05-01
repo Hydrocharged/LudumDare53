@@ -30,7 +30,7 @@ void generation::CreateCivilian(std::uint16_t amount) {
 			.TipLikelihood = ldutils::Randomf(),
 			.TipPercentage = ldutils::Randomf() * 0.3f,
 			.IsWaitingOnFood = false,
-			.WaitDayTime = 0.0f,
+			.WaitDayTime = 0.0,
 		};
 		civilian.set(hComponent);
 		civilian.set(cComponent);

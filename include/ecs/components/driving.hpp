@@ -11,7 +11,7 @@
 
 namespace ecs::components {
 	struct Driving : ecs::Component {
-		std::uint16_t Route; // Route Index
+		std::uint32_t Route; // Route Index
 		std::uint16_t CurrentSection; // Route Section Index
 		float SectionProgress; // How far along we are on this section
 		float Speed; // Multiplier on speed limit, affects how much faster/slower this person drives

@@ -44,7 +44,7 @@ void ecs::jobs::World::run(const ecs::jobs::World::Singleton& s) {
 			});
 
 			// Add a static amount of money that is generated from all owned buildings
-			data::player::Money += float(data::player::OwnedBuildings.size()) * 1000.0f;
+			data::player::Money += float(data::player::OwnedBuildings.size()) * 500.0f;
 
 			// Game is over when the player runs out of money
 			if (data::player::Money <= 0.0f) {

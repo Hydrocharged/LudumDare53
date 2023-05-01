@@ -5,6 +5,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 #include <data/world/initialize.hpp>
+#include <data/player/player.hpp>
 
 namespace data::world {
 	std::vector<Node> Nodes{}; // 1 unit == 6 feet
@@ -130,11 +131,36 @@ bool data::world::Initialize(engine::Application* application) {
 	return true;
 }
 
-void data::world::Terminate() {}
+void data::world::Terminate() {
+	//TODO: delete all sections, clear all vectors
+}
 
-std::uint32_t data::world::GetRouteID(std::uint16_t buildingStart, std::uint16_t buildingDest) {
-	RouteKey key;
+std::uint16_t data::world::GetClosestRestaurant(std::uint16_t currentBuilding) {
+	//TODO: make this way faster, maybe use some graph search?
+	const glm::vec2 location = data::world::Buildings[currentBuilding].LocationInUnits();
+	std::uint16_t target = data::player::OwnedBuildings[0];
+	float distance = glm::length2(location - data::world::Buildings[target].LocationInUnits());
+	for (int i = 1; i < data::player::OwnedBuildings.size(); i++) {
+		std::uint16_t newTarget = data::player::OwnedBuildings[i];
+		float newDistance = glm::length2(location - data::world::Buildings[newTarget].LocationInUnits());
+		target = (newDistance < distance) ? newTarget : target;
+		distance = (newDistance < distance) ? newDistance : distance;
+	}
+	return target;
+}
+
+std::uint32_t data::world::GetRouteID(std::uint16_t buildingStart, std::uint16_t buildingDest, bool& sameRoad) {
+	if (Buildings[buildingStart].RoadID == Buildings[buildingDest].RoadID) {
+		sameRoad = true;
+		return 0;
+	}
+	sameRoad = false;
+	RouteKey key{};
 	key.Buildings[0] = buildingStart;
 	key.Buildings[1] = buildingDest;
 	return BuildingsToRouteID.find(key.Key)->second;
+}
+
+double data::world::CurrentDayAt12AM() {
+	return glm::floor(DayTime / HOURS_24) * HOURS_24;
 }

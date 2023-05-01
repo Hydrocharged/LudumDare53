@@ -12,14 +12,14 @@
 namespace ecs::components {
 	struct Civilian : ecs::Component {
 		float OrderRate; // Likehood to order from our company
-		float JobLocation; // Building Index
+		std::uint16_t JobLocation; // Building Index
 		float Metabolism; // Rate that hunger depletes when awake
 		float Hunger; // When hunger <= 0, then they order food
 		float Mood; // Impacts tip likelihood/percentage, randomly decreases at work, increase when home, wakeup with 1.0, affected by delivery fee
 		float TipLikelihood; // 0 never tips, 1 always tips
 		float TipPercentage; // Of total order
 		bool IsWaitingOnFood;
-		float WaitDayTime; // Relates to data::world::DayTime
+		double WaitDayTime; // Relates to data::world::DayTime
 	};
 }
 

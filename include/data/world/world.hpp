@@ -11,8 +11,16 @@
 #define HOURS_24F 86400.0f
 #define HOURS_16 57600.0
 #define HOURS_16F 57600.0f
+#define HOURS_10 36000.0
+#define HOURS_10F 36000.0f
 #define HOURS_8 28800.0
 #define HOURS_8F 28800.0f
+#define HOURS_5 18000.0
+#define HOURS_5F 18000.0f
+#define HOURS_2 7200.0
+#define HOURS_2F 7200.0f
+#define HOURS_1 3600.0
+#define HOURS_1F 3600.0f
 
 #define MPH_TO_FEET_PER_SECOND 1.466666666667
 #define MPH_TO_FEET_PER_SECONDF 1.466666666667f
@@ -88,9 +96,29 @@ namespace data::world {
 		float DistanceFromStart;
 		std::uint16_t Cost; // Maybe in thousands, so 10 == $10,000
 		BuildingType Type;
+
+		glm::vec2 LocationInUnits() const {
+			auto& road = Roads[RoadID];
+			glm::vec2 nodeA = Nodes[road.NodeA];
+			glm::vec2 nodeB = Nodes[road.NodeB];
+			return (Start == 0) ? nodeA + ((nodeB - nodeA) * DistanceFromStart) : nodeB + ((nodeA - nodeB) * DistanceFromStart);
+		}
 	};
 
-	static std::uint32_t GetRouteID(std::uint16_t buildingStart, std::uint16_t buildingDest);
+	std::uint32_t GetRouteID(std::uint16_t buildingStart, std::uint16_t buildingDest, bool& sameRoad);
+	std::uint16_t GetClosestRestaurant(std::uint16_t currentBuilding);
+	// This returns the current day at 12AM. In other words, we take the current time (which includes the day), reverse
+	// it to 12AM, and return that number. This is useful to determine waking and sleeping hours (by just appending that
+	// time to this result).
+	double CurrentDayAt12AM();
+	// Given a time, makes sure that it is within 12:00AM to 11:59:59PM. Used for offsets, e.g. (4AM - 6 hours) == 10PM
+	inline float ConstrainTo24Hours(float time) { return (time >= HOURS_24F) ? time - HOURS_24F : ((time < 0) ? time + HOURS_24F : time); }
+	inline bool WithinRange(float currentTime, float rangeStart, float rangeEnd) {
+		assert(rangeStart != rangeEnd);
+		return (rangeStart < rangeEnd) ?
+			   ((rangeStart <= currentTime) && (currentTime < rangeEnd)) :
+			   ((rangeStart <= currentTime) || (currentTime < rangeEnd));
+	}
 }
 
 #endif //DATA_WORLD_WORLD_HPP

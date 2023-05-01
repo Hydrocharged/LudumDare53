@@ -6,8 +6,8 @@
 
 #include <ecs/jobs/driving.hpp>
 #include <data/data.hpp>
-#include <ecs/components/civilian.hpp>
-#include <ecs/components/employee.hpp>
+#include <ecs/components/confirmed.hpp>
+#include <ecs/components/waiting.hpp>
 #include <ldutils/random.hpp>
 
 namespace ecs::jobs {
@@ -18,7 +18,7 @@ ecs::jobs::Driving::Driving() {
 	auto& world = ecs::Entity::World();
 	// We should only be creating a single Driving job, so this should be fine
 	DeliveringTo = world.entity();
-	system = world.system<flecs::entity, ecs::components::Human&, ecs::components::Driving&>("Driving").each(run);
+	system = world.system<ecs::components::Human&, ecs::components::Driving&>("Driving").each(run);
 }
 
 ecs::jobs::Driving::~Driving() {
@@ -39,11 +39,11 @@ void ecs::jobs::Driving::run(flecs::entity e, ecs::components::Human& human, ecs
 	bool arrivedAtDestination = false;
 	while (!arrivedAtDestination && simulationDeltaTime > 0.0f) {
 		float trafficCongestionMultiplier = (1.0f / (std::min(20.0f, float(road->CarCount.load())) + 1.0f));
-		//TODO: have the company pressure affect their speed
 		float currentSpeedMPH = road->SpeedLimit * driving.Speed * trafficCongestionMultiplier;
 		float currentSpeedUPS = currentSpeedMPH * MPH_TO_UNITS_PER_SECONDF;
 
 		//TODO: accident likelihood if employee, affected by weather and traffic density (scales by distance traveled)
+		// components::Waiting.Confirmed = false; e.remove(DeliveringTo, civilianEntity);
 		float distanceTraveledInDeltaTime = currentSpeedUPS * simulationDeltaTime;
 		float roadLength = road->Distance();
 		float roadRemaining;
@@ -85,40 +85,51 @@ void ecs::jobs::Driving::run(flecs::entity e, ecs::components::Human& human, ecs
 		if (civilianEntity.is_valid()) {
 			// We are delivering to a customer
 			e.remove(DeliveringTo, civilianEntity);
+			civilianEntity.remove<ecs::components::Waiting>();
+			civilianEntity.remove<ecs::components::Confirmed>();
+
 			auto* employee = e.get_mut<ecs::components::Employee>();
 			auto* civilian = civilianEntity.get_mut<ecs::components::Civilian>();
-			float timeWaited = float(data::world::DayTime - double(civilian->WaitDayTime));
-			float timeOverEstimate = timeWaited - (route.EstimatedTimeToCompletion * 1.5f); // 50% buffer before penalties
-			if (timeOverEstimate > 0.0f) {
-				civilian->Mood -= timeOverEstimate / 7200.0f; // Full mood reduction after two hours of over waiting
-			}
-			if (ldutils::Randomf() < civilian->TipLikelihood * civilian->Mood * employee->Friendliness) {
-				float tip = data::player::OrderPrice * civilian->TipPercentage * civilian->Mood * employee->Friendliness;
-				employee->LifetimeTips += tip;
-				employee->Experience += tip;
-			}
+			ProcessDelivery(route.EstimatedTimeToCompletion, employee, civilian);
+		}
 
-			// Customer satisfaction affected by:
-			//   Time under or over buffered estimate. Delivering a full 90 minutes early will give a full rating on its own
-			//   Friendliness over 1.0 will give an increase to customer satisfaction, under 1.0 will decrease it
-			//   A delivery fee of 3.00 is viewed as fair, so every 1.00 above or under moves the rating by a star
-			float customerSatisfaction = std::clamp((-timeOverEstimate / 5400.0f) +
-													((employee->Friendliness - 1.0f) * 1.5f) +
-													((3.0f - data::player::DeliveryFee) * 0.2f), 0.0f, 1.0f);
-			// Order rate moves up 10% for a perfect order, moves down 10% for a tragedy
-			civilian->OrderRate += (customerSatisfaction - 0.5f) * 0.1f;
-			civilian->Hunger = 1;
-			civilian->IsWaitingOnFood = false;
-
-			float totalSale = data::player::OrderPrice + data::player::DeliveryFee;
-			employee->Experience += totalSale * data::player::DriverProfitSplit;
-			data::player::Money += totalSale * (1.0f - data::player::DriverProfitSplit);
-			employee->AverageCustomerSatisfaction = ((float(employee->NumberOfDeliveries) * employee->AverageCustomerSatisfaction) + customerSatisfaction) /
-													float(employee->NumberOfDeliveries + 1);
-			employee->NumberOfDeliveries += 1;
+		// As an employee, the company pays for ALL gas used
+		if (auto employee = e.get<ecs::components::Employee>()) {
 			float routeInMiles = float(route.TotalLengthEstimate) * UNITS_TO_MILESF;
 			float gallonsUsed = routeInMiles / (30.0f * employee->CarEfficiency);
 			data::player::Money -= gallonsUsed * data::world::GasPrice;
 		}
 	}
+}
+
+void ecs::jobs::Driving::ProcessDelivery(float estimatedTimeToCompletion, ecs::components::Employee* employee, ecs::components::Civilian* civilian) {
+	float timeWaited = float(data::world::DayTime - civilian->WaitDayTime);
+	float timeOverEstimate = timeWaited - (estimatedTimeToCompletion * 1.5f); // 50% buffer before penalties
+	if (timeOverEstimate > 0.0f) {
+		civilian->Mood -= timeOverEstimate / 7200.0f; // Full mood reduction after two hours of over waiting
+	}
+	if (ldutils::Randomf() < civilian->TipLikelihood * civilian->Mood * employee->Friendliness) {
+		float tip = data::player::OrderPrice * civilian->TipPercentage * civilian->Mood * employee->Friendliness;
+		employee->LifetimeTips += tip;
+		employee->Experience += tip;
+	}
+
+	// Customer satisfaction affected by:
+	//   Time under or over buffered estimate. Delivering a full 90 minutes early will give a full rating on its own
+	//   Friendliness over 1.0 will give an increase to customer satisfaction, under 1.0 will decrease it
+	//   A delivery fee of 3.00 is viewed as fair, so every 1.00 above or under moves the rating by a star
+	float customerSatisfaction = std::clamp((-timeOverEstimate / 5400.0f) +
+											((employee->Friendliness - 1.0f) * 1.5f) +
+											((3.0f - data::player::DeliveryFee) * 0.2f), 0.0f, 1.0f);
+	// Order rate moves up 10% for a perfect order, moves down 10% for a tragedy
+	civilian->OrderRate += (customerSatisfaction - 0.5f) * 0.1f;
+	civilian->Hunger = 1;
+	civilian->IsWaitingOnFood = false;
+
+	float totalSale = data::player::OrderPrice + data::player::DeliveryFee;
+	employee->Experience += totalSale * data::player::DriverProfitSplit;
+	data::player::Money += totalSale * (1.0f - data::player::DriverProfitSplit);
+	employee->AverageCustomerSatisfaction = ((float(employee->NumberOfDeliveries) * employee->AverageCustomerSatisfaction) + customerSatisfaction) /
+											float(employee->NumberOfDeliveries + 1);
+	employee->NumberOfDeliveries += 1;
 }

@@ -4,14 +4,14 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-#ifndef ECS_COMPONENTS_WAITING_HPP
-#define ECS_COMPONENTS_WAITING_HPP
+#ifndef ECS_COMPONENTS_CONFIRMED_HPP
+#define ECS_COMPONENTS_CONFIRMED_HPP
 
 #include <ecs/ecs.hpp>
 
 namespace ecs::components {
-	struct Waiting : ecs::Component {
+	struct Confirmed : ecs::Component {
 	};
 }
 
-#endif //ECS_COMPONENTS_WAITING_HPP
+#endif //ECS_COMPONENTS_CONFIRMED_HPP
